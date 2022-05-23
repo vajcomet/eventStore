@@ -5,39 +5,53 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using eventStoreASP.Models;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace eventStoreASP
 {
     public class Client
     {
+        public string connectionString { get; set; } = "esdb://admin:changeit@127.0.0.1:2113?tls=false";
 
         private EventStoreClient _client { get; set; }
-        private IEnumerable<DataModel> _events { get; set; }
+
+        private List<string> _list { get; set; } = new List<string>();
+        private List<DataModel> _events { get; set; } = new List<DataModel>();
         public int eventsCount { get; set; } = 10;
         public IEnumerable<DataModel> events
         {
             get
             {
                 stream(eventsCount);
-                return _events;
+                return _events.Where(x => x.time > DateTime.Now.AddMinutes(-10));
             }
         }
 
-        public EventStoreClient establishConnection(string connectionString)
+        public EventStoreClient establishConnection()
         {
             var settings = EventStoreClientSettings.Create(connectionString);
             _client = new EventStoreClient(settings);
+            stream(10);
             return _client;
         }
 
         async public void writeSomeStream()
         {
+            DataModel temp = new DataModel();
+
+            temp.time = DateTime.Now;
+            temp.id = "1";
+            temp.value = "dačo";
+            temp.type = "type";
+
+            JsonConvert.SerializeObject(temp);
+
             var eventData = new EventData(
                 Uuid.NewUuid(),
                 "some-event",
-                Encoding.UTF8.GetBytes("{\"id\": \"1\" " + DateTime.Now.ToString() + " \"type\": \"price\"  \"value\": \"some value\"}")
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(temp))
             );
-
             await _client.AppendToStreamAsync(
                 "some-new-stream",
                 StreamState.Any,
@@ -64,7 +78,15 @@ namespace eventStoreASP
 
             await foreach (ResolvedEvent @event in result)
             {
-                _events.Equals(Encoding.UTF8.GetString(@event.Event.Data.ToArray()));
+                try
+                {
+                    var temp = Encoding.UTF8.GetString(@event.Event.Data.ToArray());
+                    var temp1 = JsonConvert.DeserializeObject<DataModel>(temp);
+                    _events.Add(temp1);
+                }
+                catch
+                {
+                }
             }
         }
     }

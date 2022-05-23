@@ -21,8 +21,10 @@ namespace eventStoreASP.Controllers
 
         public IActionResult Index()
         {
-            Program.eventStoreApp();
-            return View();
+            Client client = new Client();
+            client.establishConnection();
+            client.writeSomeStream();
+            return View(client.events);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

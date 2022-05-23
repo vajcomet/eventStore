@@ -15,10 +15,10 @@ namespace eventStoreASP
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
-
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -27,13 +27,6 @@ namespace eventStoreASP
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
-        public static void eventStoreApp()
-        {
-            var client = new Client();
-            client.establishConnection("esdb://admin:changeit@127.0.0.1:2113?tls=false");
-            client.writeSomeStream();
-        }
 
     }
 }
