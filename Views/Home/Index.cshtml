@@ -1,0 +1,44 @@
+﻿@model IEnumerable<DataModel>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h1>Home</h1>
+
+<table class="table table-bordered table-striped" style width:100%>
+    <thead>
+        <tr>
+            <th>
+                Id
+            </th>
+            <th>
+                Time 
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Value
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model)
+       {
+           <tr>
+               <td width="25%">
+                   @obj.id
+               </td>
+               <td width="25%">
+                   @obj.time
+               </td>
+               <td width="25%">
+                   @obj.type
+               </td>
+               <td width="25%">
+                   @obj.value
+               </td>
+           </tr>
+       }
+    </tbody>
+</table>
